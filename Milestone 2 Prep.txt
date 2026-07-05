@@ -1,0 +1,432 @@
+Q1: What is CI/CD
+
+ans when multiple developers work on same application each dev pushes his part of codes which need an continuous integration to the production environment.
+    so the developed code is pushed to an remote repo from where the code is pulled continuously 
+    it involves
+    - pull latest code
+    - compile it
+    - add dependencies
+    - run test
+    - take artifact out of it war/jar file
+tools involved: GitHub, Jenkins , maven
+
+CD: Deployment is the part of making the application available for the end users.
+
+CD handles:
+
+Packaging
+Containerization
+Image creation
+Image storage
+Deployment
+Scaling
+
+Tools involved:
+
+Docker
+AWS ECR
+Kubernetes
+=======================================================================================================================================================================
+
+Q2 How does Jenkins know that there is a change in the code?
+Ans The GitHub webhook tells Jenkins
+
+Q what is Webhook?
+
+ANS: A webhook is an HTTP Callback.
+     GitHub sends an HTTP POST request to the Jenkins and then decides to schedule a job.
+
+=======================================================================================================================================================================
+
+Q3 What Jenkins?
+ANS Jenkins is an open source automation tool that helps in ci cd.
+
+W4 Why Jenkins?
+ANs Has large plugins ecosystem
+    easily adapts with the tools like docker, Kubernetes etc etc
+    open source.
+
+    without Jenkins we would have to manually pull code, build it, create its image, push image to ecr, deploy it using Kubernetes.
+    but instead we just write the Jenkins pipeline script and Jenkins does that for us.
+
+============================================================================================================================================================
+
+Q4 what is maven why maven?
+Ans Maven is an automation tool, that is used to automate the build part.
+
+    Without maven: manually compile code
+                   manage dependencies environment
+                   run test
+                   package the application. 
+                   create the artifact war/jar files.
+
+    with maven: maven reads the pom.xml -> downloads the dependencies -> from maven central repository.
+                mvc clean package.
+                maven output-> war file contains complied code which is deployable -> called ad artifact -> artifact is input to docker 
+
+Q What does it mean by mvn clean package?
+
+ANs Clean: clean the stuff related to the previous build otherwise it would interfere with the current build and start a fresh build.
+
+    Package: reads pom.xml 1st
+             downloads all the missing dependencies from the maven central repository.
+             compiles the code .java -> .class
+             finally packages the application into .war or .jar.
+  
+    A war file is just an packaged web application not an running application.
+============================================================================================================================================================
+
+Q What is Jenkins Build Queue?
+
+ANS Whenever a dev pushes the code the Jenkins doesn't immediately start the build, suppose 100 developers push the code at once the Jenkins would start 100
+    build.
+    The Jenkins places the job into build Queue first and then wait for an executor to be available.
+
+    Each job consumes huge amount of CPU memory and disk, so we dont give all the work once to the controller machine otherwise it would become overloaded.
+============================================================================================================================================================
+
+Q What is checkout? why is it necessary?
+
+ANS Checkout stage is the stage where the Jenkins pull the latest source code from the GitHub repo to the jenkisn workspace.
+    It just clones the source code to the Jenkins workspace, this is done coz
+     - Maven java docker testing tools cant build code directly from the GitHub they need that code into a local workspace.
+============================================================================================================================================================
+
+Q5 Why do we create the docker image of the war file, why dont we execute it or deploy it directly?
+
+ANS: Different servers may have different java configurations like java 11 java 17,21 etc so this breaks the application execution
+     Here to solve this problem docker helps us 
+     -> it says package everything at once 
+     -> create image of it run anywhere.
+
+
+     -The war/jar only contains the application code, not the runtime environments required to run the application.
+
+     -Docker says: Don't just ship the application code, but also ship the runtime environment under single unit called Docker Image.
+
+========
+
+Q6 How do you create the docker image?
+
+ANS: 
+-The docker automatically doesn't know that on which java version does the application runs, what os would it uses, where is the war file stored? of the web application for whom we are trying to create the image for. 
+     
+-For this we write the DockerFile to create the Docker Image.
+
+-We explicitly mention in the dockerfile,
+  which java to use
+  which application file to include
+  how to start the application
+============================================================================================================================================================
+
+
+Q7 What is docker image?
+
+ANS
+-Docker is an blueprint of the application, 
+ it contains OS Layer
+             Runtime env
+             jar/war files etc.
+-It's just an packaged template of the application, which is not running state.
+
+===============================================================================================================================================================================
+
+Q7 What is a container in docker?
+
+ANS
+- A Docker container is a running instance of a Docker image that executes the application in an light weight isolated environment.
+- An image is the blueprint, while a container is the running instance created from that blueprint.s
+
+==========================================================================================================================================================================
+
+Q What is docker compose?
+
+ANS : It is an service thru which we can run multi containers thru one single yaml file.
+    
+      - suppose an application has frontend, backend, db, redis etc etc. which are running on separate containers, so to start that application we would need to manually  
+        start each and every container.
+      - for each container you would type docker run, but when u use docker compose you just config all the containers inside an compose.yml file and just do 
+        docker compose up.
+
+==========================================================================================================================================================================
+
+Q8 What role does the Kubernetes play here?
+
+And 
+-Kubernetes help us with the management of containers like if any container crashes the kub helps us restore the number of replicas or help us regain the container back.
+- it always maintains the number of replicas upend and running keeps checking the health of all container etc etc.
+- execution : reads the deployment.yml
+                        pulls image from ecr
+                        creates the pods
+                        creates the container   
+==================================================================================================================================================================================
+
+Q9 what are pods?
+
+ANs 
+-Pods are smallest deployable unit inside which we have the container in running state. it provides us networking storage etc
+-Kub doesn't manage the containers directly, it manages the pods.
+
+
+Q10 How does the kubenetes pull the image from the ecr?
+
+ANS
+-first we need to connect the Kubernetes to the ECR using the aws eks updateconfig --region cluster name commmand
+-The code or configuration for this activity is written into the deployment.yml file we execute that file, 
+ where we have mentioned all the details of the image like its name location etc etc.
+
+-the scheduler in the Kubernetes check which node i can deploy this pod to, it then deploys the pod.
+-the node checks if it already has this image inside itself, if not it pulls.
+
+=================================================================================================================================================================================
+
+Q11 Whats is Ansible?
+
+ANS
+- Ansible is an agentless configuration management tool.
+- agentless means it doesn't require any kind of software to be installed on the target machines on which we want to perform the activity remotely. 
+
+Q12 How does ansible manage the target machines?
+
+ANS
+- for this purpose we write the inventory.ini file where in all the ip's of the target machines as well as of the Jenkins master machines is given.
+- .ini means Initialization File.
+- it uses python to execute the installations, updates & configurations on the target machines.
+
+
+Q13 What role does the ssh play here?
+
+ANs
+- ssh is secure shell
+- it is type of communication channel thru which the ansible send instructions to the target machines.
+=================================================================================================================================================================================
+
+Q14 What is sh in the Jenkins pipeline code?
+
+ANS
+- sh stands for shell, is an executor that executes the Linux shell command given to it on the stage into which it is mentioned inside the pipeline code.
+
+================================================================== Project Explaination Complete ===========================================================
+
+
+
+
+
+
+
+
+===================================================================== Basics ======================================================================================
+
+Q1 what are types of storages in AWS?
+
+ANS: Block Storage: they are storages that are attached directly to the instance as a type of disk.
+                    EBS and EFS are eg of it.
+
+
+----------------------------------------
+
+Q2 What is difference between role and policy?
+
+ANS: Policies are set of permissions written in json format.
+     and group of policies can be attached to a role.
+
+---------------------------------------------------------------
+
+Q3 What is lambda?
+
+ANS AWS lambda is a serverless service provided by the AWS, where in all the infra is managed by the aws.
+    
+    It provides function as service, where we write code for whatever actions we want to perform.
+                    
+---------------------------------------------------------------
+
+Q5 What is Argo CD?
+
+ANS: Argo CD is an Continuous Delivery tool that ensure that the Kubernetes configurations inside the git matches the production environment.
+
+   - We store all the Kubernetes configurations files(yml files) in git, argo cd continuously monitors that files and keeps on ensuring that the 
+     actual production env matches with the configurations.
+   
+   - eg: Inside GIT the configurations says 3 replicas of application(image) should be upend, then argo cd ensure that much replicas are upend.
+
+         Argo CD keeps on doing periodic checks, if it finds that the desired state is not maintained it automatically makes changes and maintains the
+         desired state.
+
+
+Q6 What happens if someones manually changes the Configurations files?
+
+ANS:  Suppose someone changes the numbers of replicas to 8 in the prod env, and argo cd notices it while checking it brings down the number of pods to 3 again that is          mentioned in the git configuration.
+
+
+Q7) What is GitOps?
+
+ANS:  Gitops is the practice that tells us that all config files of Kubernetes, that describes us how our application should run on the Kubernetes should always be stored 
+      git. 
+
+==========================================================================================================================================================================
+
+
+                                                                      Linux Commands 
+
+pwd: prints current working directory
+
+ls: list files
+
+ls -l: long listing
+
+ls -a: shows hidden files
+
+cat: concatenate 
+
+head: prints first 10 lines. mostly used with log files coz they are very huge
+tail: prints last 10 lines of file
+
+
+Terminal bases text editors provided by Linux, coz we cant open notepad there coz we are connected to the remote Linux server thru ssh.
+nano:
+vi  : 
+
+grep: helps to track down specific keywords into an huge file. helps to search logs, and application outputs.
+      grep ERROR application.log
+
+chmod: gives read write execute permissions to any file.
+       755 read write execute
+       777 can do everything
+       makes any .sh file executable.
+       
+
+chown: changes owners of files.
+       suppose a files owner is root and Jenkins user tries to access it, it gives error.
+
+ps: shows running processes
+
+top: shows live cpu
+
+kill: kills process using PID
+
+df -h: shows disk space. used to check server storage.
+
+du -sh: gives folder size
+
+curl: send http requests and view the response
+      curl http:localhost:8080 -> prints the server response to terminal rather than saving it.
+
+wget: downloads requirements from the internet directly just by giving wget+requirement link.
+      done coz while working on any servers the servers dont have gui so.
+
+netstat: shows listening port
+
+tar -cvf: create archive
+
+tar -xvf: extract 
+
+su: switch user
+
+sudo su: become the root user. super user do switch user 
+
+======================================================================================================================================================================
+                   
+
+                                                                    GitHub
+
+Q1) Different Branching Strategies?
+
+ANS 1) Feature Branch
+       - for each feature of the application a separate branch is created and separate developer works on each separate branch.
+       - eg:- login feature, payment feature etc.
+
+
+    2) Git Flow
+       - multiple branches where each serve a different purpose
+
+       - main    : contains production ready code only.
+       - develop : completed features are combined before a release. and are also tested her.
+       - feature : 
+       - release : contains the latest version of the application that is ready to be release.
+                   once the new version goes into this branch no new updates are taken into it, only testing of it is done before going to production.
+       
+       - hotfix  : suppose a new version of application is released, and the payment gateway fails? we cant wait until next release date we need to fix immediately.
+                   so immediately a new branch is created just to fix the failure.
+
+
+    3) Github flow:
+
+       - based on git flow
+       - they dont wait for the release branch or release dates.
+       - as soon as the feature is developed it tested and pushed to main branch.
+
+
+     4) Trunk based development:
+
+        - developers directly work on the main branch.
+
+
+
+Q2) 
+===========================================================================================================================================================================
+
+                                                                    Kubernetes
+
+Q1 what is ingress? and ingress controller?
+
+ANS Ingress is set of rules that decide how the traffic should be routed to multiple services.
+    eg: admin service, payment service.
+
+    The ingress controller reads the ingress rules and applies them. it decides where the traffic flow
+
+    the flow is like interner -> load balancer -> ingress controller -> service.
+
+    We would require multiple LB to deploy multiple deployments, so instead we use ingress controller that exposes multiple deployments using one single LB.
+
+----------------------------------------------------
+
+Q2 what is pv vs pvc?
+
+ANS PV is the persistent volume tht doesn't get deleted until we do manually.
+
+    PVC: the applications dont directly request storage, they make a request and that request is called PVC.
+
+----------------------------------------------------
+Q3 Pod vs autoscaling?
+
+ANS: Pods require manually scaling to handle the traffic smoothly.
+     
+     Autoscaling: scaling is done automatically, depending upon the number of traffic.
+                  
+                  Horizontal Pod Scaling: increases the number of pods
+                  vertical pod scaling : Increases the pod resources like cpu memory etc.
+------------------------------------------------------
+
+
+
+Q4 What are different deployment Strategies?
+
+AND Recreate: when new version is released of the application.
+
+              old pods r deleted -> downtime -> new pods created -> new version releases.
+
+              here user face the downtime for some period of time.
+
+    
+    Rolling update: Its Kubernetes default strategy
+ 
+                  - suppose we have 4 pods and a new version of pod is released.
+                  - so first the version is deployed on Pod1 -> then pod2 -> pod3 -> pod4 in an rolling manner.
+
+
+    Blue green deployment: 
+                         - initially users use the blue environment
+                         - new version is deployed on the green environment -> its completely tested
+                         - now switch traffic from blue -> green.
+                         - can easily roll back.
+
+    Canary: 
+          - initially 900 users use the older version of the application
+          - and only 100 are put on the new version.
+          - if the new version stays stable, gradually the traffic is allowed on new version.
+-------------------------------------------------------
+       
+               
+
+
+    
