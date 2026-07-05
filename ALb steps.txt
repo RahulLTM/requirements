@@ -1,0 +1,27 @@
+Step 1: Create Vpc,
+        2 subnets homepage, moviespage in 2 different az.
+        create 1 rt -> associate subnets-> edit routes
+        create igw , sg.
+
+Step 2: Create Instance Homepage-> connect to it
+      - apt update
+      - apt -y install nginx
+      - cd /var/www/html -> ls -> get the html file name
+      - nano html file name -> edit the html page.
+
+Step 3: make dir
+     - while into the movies instance
+     - create mkdir movies inside the /var/www/html
+     - we move the index file from /var/www/html to movies dir by 
+        mv index.nginx-debian.html movies
+
+Step 4: create target groups
+     - 2 tg for homepage and movies page
+     - for home page keep / only 
+     - for movies page keep /movies/
+     - select movies instance inside movies tg and homepage instance inside the homepage tg. 
+     - the tg's should be healthy
+
+Step 5: Create ALB 
+     - choose homepage to open bydefault
+     - add rule for the movies page -> put path -> /movies/*- > create

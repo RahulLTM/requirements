@@ -1,0 +1,39 @@
+1) kubectl create deployment mydeployments --image nginx:latest --replicas 10 --dry-run -o yaml   ----> create dep using declarative way
+
+2) nano deployment.yml
+   copy paste the code there
+
+3) kubectl appy -f deployment.yml     ----> apply config from the file
+==============================================================================================================================================
+
+
+                                                         Create multiple containers using deployment
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mydeployment
+  name: mydeployment
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: mydeployment
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: mydeployment
+    spec:
+      containers:
+      - image: nginx:latest
+        name: nginx
+      - image: tomcat:latest                      ---> create 1 more container inside the deployment
+        name: tomcat
+        resources: {}
+status: {}
+
+
+1) kubectl apply -f deployment.yml
+2) kubectl get pods                                ----> should see that every pod should have 2 container

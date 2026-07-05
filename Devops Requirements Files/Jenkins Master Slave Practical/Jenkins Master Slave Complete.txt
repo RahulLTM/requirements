@@ -1,0 +1,42 @@
+Step 1: launch ubuntu 22.04 instance 
+        t3.medium ami
+        create vpc-> 3 subnets in 3 AZ -> igw -> rt -> sg -> 15 gb ram -> launch.
+
+Step 2: Install Java
+      - apt update
+      - sudo apt install -y openjdk-21-jdk
+
+Step 3: Key Generation
+      - ssh-keygen
+      - cd /root/.ssh -> ls
+      - cat id_rsa    -> copy private key to txt file
+      - cat id_rsa.pub -> copy public key to txt file
+
+Step 4: Get the snakes repo
+      - go to online tomcat snakes repo
+      - sudo git clone repo url         --> do while ubuntu user
+      - cd to snakes repo -> ll
+      - rm -rf .git                     --> remove the already exisiting .git file
+      - git init                        --> initialize new git
+      - git add . && git commit -m "added snakes repo"
+
+
+Step 5: Put the email n username by copy pasting.
+      - do git add n commit
+
+Step 6: CREATE NEW REPO
+      - go to seeting ->deploy keys-> paste the public key there-> allow write access.
+      - git remote add alias ssh link of repo
+      - git push alias master
+
+
+Step 7: INSTALL JENKINS
+      - go to google - Jenkins installation - lts
+      - copy paste the stuff there one by one n run
+      - sudo apt update
+      - sudo apt install Jenkins
+
+Step 8: Setup the JENKINS USER
+      - compgen -u    --> check us Jenkins user is present it will be
+      - su - Jenkins -> whoami -> sudo su -> asks password  - here we try to shift from normal Jenkins user to root Jenkins user.
+      - 

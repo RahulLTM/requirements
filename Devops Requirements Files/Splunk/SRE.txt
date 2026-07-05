@@ -1,0 +1,52 @@
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+============================================================================================================
+
+2) How does splunk help in SRE?
+
+ANS:- If any time an incident occurs like database crash after an incident the SRE directly goes to splunk
+      to investigate the entire matter.
+
+    - The Splunk provides us with all the logs before and after the incident occurred, which helps the SRE's
+      to investigate the reason of the incident. 
+
+================================================================================================================
+
+3) SRE Prometheus and Grafana
+
+ANS:- Collecting the logs alone is not enough, we also need to have metrics of the system.
+
+    - The metrics include CPU, Memory, Disk usage, network traffic and requests rate.
+
+    - This metrics are collected using the tool Prometheus.

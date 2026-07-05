@@ -1,0 +1,86 @@
+Step 1: Create an Amazon Linux instance and connect to it thru cmd.
+
+
+Step 2: Install git into that instance
+      - sudo su
+      - yum update
+      - yum install -y git
+      - git init 
+
+Step 3: Create a remote repository on AWS Code Commit & copy the ssh url of it.
+
+
+Step 4: Connect the git and remote code commit repository
+      - git remote add alias ssh url
+      - git remote -v should see the repo
+
+
+Step 5: Generate the SSH KEY
+
+      - ssh-keygen      -> generates the key
+      - cd /root/.ssh   -> the location of the ssh key
+      - ls              -> get the key name
+      - chmod 600 keyname -> give permissions to the key
+
+
+Step 6: Give the SSH key to -> IAM 
+
+      - cat id_rsa.pub  -> reads the content of the pub file
+      - copy paste the entire ssh key
+      - go to IAM user-> security -> ssh key for aws code commit - paste the key.
+
+
+Step 7: Try to create file 
+    
+      - cd to ec2-user
+      - touch file.txt
+      - git add file.txt && commit -m "added file"
+      - git push from codecommit to master         -> this wont execute coz the ec2 n code commit cant access each other coz no roles.
+                                                   -> we dont have the correct access rights
+
+Step 8: Create Access Rights
+  
+      - go to IAM create rules
+      - use case ec2
+      - permission policies code commit
+      - give name n create role
+
+Step 9: Attach role to the instance
+
+      - go to instance -> actions -> security -> modify iam rules -> attach the rule.
+
+
+Step 10: Create Config file
+
+      - go to root user -> go to .ssh 
+      - create the nano file nano config 
+      - go to code commit -> repo -> ssh -> step 3 -> copy the code -> paste to the nano file.
+      - user <iam ssh key id>    -> iam user->security->ssh key
+      - identity file id_rsa
+     
+Step 11: Push from ltmgithub to master
+
+      - git push ltmgithub master
+      - the files gets pushed to the remote repo on code commit.
+------------------------------------------------------------------------------------------------------------------
+
+Branching:-
+
+Step 1: Create feature branch and ls to check all the files inside it. 
+      - git checkout -b feature
+        You should get all the files into the feature branch that are inside the main branch.
+
+Step 2: create new file inside the new branch.
+      - touch rahul.txt
+      - git add feature.txt && git commit -m "added rahul"
+      - git push to codecommit(remote repo) from feature(local repo)
+
+Step 4: create pull request from code commit ui.
+
+Step 3: Merge the feature branch to master branch
+
+      - git merge master feature  -> while u in master branch run this. this brings all files from the feature b to master branch.
+
+------------------------------------------------------------------------------------------------------------------
+
+

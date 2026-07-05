@@ -1,0 +1,85 @@
+1) Create Cluster 
+   - give role : pvpvc-cluster-role
+
+   Delete add ons : Node Monitoring Agent, Metric Services
+
+
+2) Create Nodes
+   - give role : pvpvc-node-role
+
+
+3) Create an Instance: Kubernetes
+   - give role : -> iam roles -> ec2-adminfull-access -> attach to Kubernetes instance
+
+
+4) Give Policies to the ec2-adminfull-access-role. Go to cluster->access
+   - AmazonEksAdminPolicy
+   - AmazonEksAutoNodePolicy
+   - AmazonEKSClusterAdminPolicy
+
+=======================================================================================================================================================
+
+4) Install Kubernetes
+   - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.35.3/2026-04-08/bin/linux/amd64/kubectl
+   - chmod +x ./kubectl
+   - mv kubectl /usr/local/bin
+
+
+5) Install EKSCTL 
+   - curl -sL https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz | tar xz
+   - mv eksctl /usr/local/bin
+
+========================================================================================================================================================
+
+6) Check if eksctl and kubectl is correctly installed or not
+   - kubectl
+   - eksctl get cluster --region ap-south-1
+
+
+7) Attaching EC2 to Kubernetes Cluster
+   - aws eks update-kubeconfig --region ap-south-1 --name clustername
+
+
+8) Create an new ADD-ON
+   - Amazon EBS CLI Driver
+   - give role for it
+
+9) Create PV.yml
+   - nano pv.yml
+   - copy paste the code
+   - kubectl apply -f pv.yml
+   - kubectl get pv          --> wont see anything
+
+10) Create PVC.yml
+    - nano pvc.yml
+    - copy paste the code
+    - kubectl apply -f pvc.yml
+    - kubevtl get pvc          --> should se pending coz no mount performed
+
+
+11) Create POD.yml
+    - nano pod.yml
+    - kubectl apply -f pod.yml
+    - kubectl get pv
+    - kubectl get pvc           --> status should be bound
+
+
+12) Login to Pod
+    - kubectl exec -it podname -- bash
+    - cd /usr/share/nginx/html/         -->coz this is the mount location
+    - touch file1.txt
+
+13) Delete Pod
+    - kubectl delete pod podname
+    - kubectl get pv                    --> should still be there
+    - nano pod.yml                      --> change the podname inside
+    - kubectl apply -f pod.yml          --> again run the pod file with different pod name
+
+14) Login to new pod
+    - kubectl exec -it podname -- bash
+    - cd /usr/share/nginx/html/         
+    - ls                                --> file1.txt should be here as it is
+
+
+
+

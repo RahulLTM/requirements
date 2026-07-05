@@ -1,0 +1,22 @@
+sudo apt update
+wget https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.deb
+sudo apt-get install ./mount-s3.deb
+mount-s3 --version
+wget https://s3.amazonaws.com/mountpoint-s3-release/public_keys/KEYS
+gpg --import KEYS
+gpg --fingerprint mountpoint-s3@amazon.com
+wget https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.deb.asc
+gpg --verify mount-s3.deb.asc
+mkdir mount
+s3-mount name ofbucket mnt/
+
+sudo apt update
+sudo apt install -y ruby wget
+cd /home/ubuntu
+wget https://aws-codedeploy-<region>.s3.<region>.amazonaws.com/latest/install
+chmod +x ./install
+sudo ./install auto
+sudo systemctl status codedeploy-agent
+
+sudo systemctl restart codedeploy-agent
+sudo tail -n 200 /var/log/aws/codedeploy-agent/codedeploy-agent.log

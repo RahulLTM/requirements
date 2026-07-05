@@ -1,0 +1,26 @@
+
+1) kubectl run podname --image nginx:latest --dry-run -o yaml      ----> create single pod using declarative way.
+
+2) nano pod.yml                                                    ----> create a pod.yml file n paste the code
+   copy paste the above code 
+
+3) kubectl apply -f pod.yml                                        ----> apply configuration from file pod.yml
+=========================================================================================================================================================
+
+                                                      Creating Multiple Container inside 1 Pod
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: mypod
+  name: mypod
+spec:
+  containers:
+  - image: nginx:latest
+    name: mypod
+  - image: tomcat:latest                                            ----> added one more container to the pod
+    name: tomcat
+
+1) kubectl apply -f pod.yml                                         ----> apply configuration
+2) kubectl get pods                                                 ----> u should see 2 containers inside the pod.

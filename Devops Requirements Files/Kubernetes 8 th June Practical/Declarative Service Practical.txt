@@ -1,0 +1,19 @@
+                                                Exposing Deployments using Load Balancer Service by declarative way.
+
+
+1) kubectl create deployment mydep --image nginx:latest --replicas 10                  ----> 1st create deployment
+
+
+2) kubectl expose deployment mydep --port 80 -type LoadBalancer --dry-run -o yaml     -----> expose it using loadbalancer
+
+
+3) nano service.yml                                                                   ---->copy paste the code here.
+
+
+4) kubectl apply -f service.yml                                                       ----> apply config to file
+
+
+5) kubectl get service                                                                ----> get load balancer external ip
+
+   - copy paste the external ip n paste to the browser
+   - before that go to-> instances created by nodes -> security group -> edit inbound rules -> all traffic & anywhere ipv4

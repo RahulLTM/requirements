@@ -1,0 +1,46 @@
+1) Download Docker
+   - curl https://get.docker.com >> docker.sh
+   - chmod +x docker.sh
+   - ./docker.sh
+
+   - docker rm -f $(docker ps -aq)   --> remove all types of containers
+   - sudo systemctl restart docker
+
+=================================================================================================
+
+2) Install Java 8
+   - apt update && apt install -y openjdk-8-jdk
+
+
+=================================================================================================
+
+3) Clone Snakes Repo: --> inside home/ubuntu
+
+ - git clone https://github.com/aws-samples/eb-tomcat-snakes
+ - cd eb-tomcat-snakes
+ - ./build.sh                   --> build the war file of it.
+ - ls
+ - mv ROOT.war /home/ubuntu/    --> move ROOT.war to the /home/ubuntu/
+
+=================================================================================================
+
+4) Create index.html and style.css  --> inside home/ubuntu
+
+ - nano index.html    --> copy paste Netflix html code
+ - nano style.css     --> copy paster Netflix css code
+
+===================================================================================================
+
+5) Create Netflix and Tomcat files alias dockerfiles        --> inside home/ubuntu/
+  
+ - nano netflixfile -> copy paste the code
+ - nano tomcatfile  -> copy paste the code
+
+==================================================================================================
+
+6) Create the compose.yml file
+
+ - nano compose.yml            --> inside home/ubuntu
+
+ - docker compose up           --> build both the files-> creates images from those files-> create containers from those images and expose them
+                                   on mentioned ports

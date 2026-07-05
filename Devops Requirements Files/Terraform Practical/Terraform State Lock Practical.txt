@@ -1,0 +1,76 @@
+1) Install AWS CLI --> both machines
+
+  - sudo apt install curl unzip -y
+  - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip
+  - unzip awscliv2.zip
+  - sudo ./aws/install
+  - aws --version
+
+==================================================================================================================
+
+2) Install Terraform  ---> both machines
+
+   wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-     keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update && sudo apt install terraform
+
+===================================================================================================================
+
+3) Create IAM role:
+
+  - create an iam role-> ec2-to-adminfullaccess -> attach to the both instances
+
+====================================================================================================================
+
+3) Setup all the basic infra  --> inside /home/ubuntu/terraform
+
+  - mkdir terraform
+  - terraform init
+  - terraform validate
+  - terraform plan
+  - terraform --auto-approve
+  - terraform --auto-destroy
+
+===================================================================================================================
+
+4) Configure the Backend: INSIDE MACHINE 1
+
+
+   mkdir backend             --> inside /home/ubuntu/terraform/backend
+
+ - nano s3.tf
+   terraform init
+   terraform plan
+   terraform apply --auto-approve
+
+ - nano dynamodb.tf
+   terraform init
+   terraform plan
+   terraform apply --auto-approve
+
+
+====================================================================================================================
+
+5) Configure the backend.tf
+
+ - nano backend.tf                     -->inside the /home/ubuntu/terraform
+   terraform init
+   terraform plan
+   terraform apply --auto-approve  ---> after this s3 bucket should be seen and also table with the file.
+
+IMP: Create the backend.tf inside that location only where we will be creating our infra.
+     - we create our entire infra inside terraform directory so create the backend.tf inside it only.
+======================================================================================================================
+   
+5) Configure MACHINE 2
+
+
+   mkdir backend
+
+ - nano backend.tf   --> copy paste the same code
+   terraform init
+   terraform plan
+   terraform apply --auto-approve
+
+==========================================================================================================================
+ 

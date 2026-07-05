@@ -1,0 +1,50 @@
+1) Create ubuntu 22.04 instance
+
+2) ssh-keygen -t rsa -b 4096 -m pem 
+   - copy paste the public key to deploy keys to the newly created repo that we created on GitHub.
+
+3) Clone snakes repo:
+   - git clone snakes
+   - cd snakes
+   - rm -rf .git
+   - git init
+   - git remote add repo
+   - git add . && git commit
+   - git push origin master
+
+==========================================================================================
+
+4) Create The workflow.yml file
+
+   - mkdir .GitHub               -->inside eb-tomcat-snakes
+   - cd .GitHub 
+   - mkdir workflows             
+   - cd workflows
+   - nano workflow.yml           --> inside ->.GitHub -> workflows -> workflow.yml
+   - paste the pipeline script
+
+   - git add . && git commit -m ""
+   - dont push yet
+
+=========================================================================================
+
+5) Create Self Hosted Runner
+
+   - Go to GitHub setting -> Actions -> Runners -> Self Hosted Runners 
+   - select Linux runner
+
+
+   RUN ALL THE COMMANDS                         ---> while been ubuntu normal user
+   - mkdir actions-runner && cd actions-runner
+   - curl cmd
+   - tar cmd
+   - config -> runner group = default
+               runner name  = dev
+               label name   = dev
+               workflow     = no change
+   
+   - ./run.sh
+   - sudo su
+   - git push origin master                     ---> from eb-snakes-repo
+===========================================================================================
+      

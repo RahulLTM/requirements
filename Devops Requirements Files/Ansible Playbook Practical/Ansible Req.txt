@@ -1,0 +1,81 @@
+1) Create 1 Master and 2 Slaves
+
+2) ssh-keygen inside master machine 
+   - copy pub key -> go to slave -> /root/.ssh -> authorized_keys -> paste the public key here.
+
+3) Check if master can login to slave
+   - ssh root@private ip of slave
+
+4) Create the inventory.ini file
+   - [all], [master], [slave-1], [slave-2], [slaves]
+
+4) Install Ansible inside master machine
+   - apt install -y ansible
+
+========================================== nginx ====================================================
+5) Create nginx playbook
+   - nano nginxplaybook.yml
+   - 
+---
+- name: Install Nginx on Slave Machines
+  hosts: slaves
+  become: yes
+
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Start and enable Nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+run the playbook:             ansible-playbook -i inventory.ini nginxplaybook.yml
+
+check nginx version on slave: ansible slaves -i inventory.ini -m shell -a "nginx -v"
+
+
+================================================= java playbook ==================================================
+
+6) Create Java Playbook
+
+   - nano javaplaybook.yml
+
+---
+- name: Install and Verify Java on Slave
+  hosts: slaves
+  become: yes
+
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install OpenJDK 11
+      apt:
+        name: openjdk-11-jdk
+        state: present
+
+    - name: Check Java version
+      command: java -version
+      register: java_output
+
+    - name: Display Java version
+      debug:
+        var: java_output.stderr
+
+   run the playbook: ansible-playbook -i inventory.ini java_setup.yml
+
+   check if java installed on slave machine: ansible slaves -i inventory.ini -m shell -a "java -version"
+
+=======================================================================================================================================
+

@@ -1,0 +1,133 @@
+ssh-keygen -p -m PEM -f ~/.ssh/id_rsa
+apt install python3-pip
+apt install -y software-properties-common
+
+[defaults]
+inventory = /etc/ansible/hosts
+roles_path = /etc/ansible/roles
+host_key_checking = False
+
+ansible-config dump --only-changed
+
+ansible all -m ping -i inventory.ini
+
+ansible all -m apt -a "update_cache=yes" --become -i inventory.ini
+
+ansible slaves -m user -a "name=jenkins state=present create_home=yes shell=/bin/bash" --become -i inventory.ini
+
+ansible slaves -m user -a "name=jenkins groups=sudo append=yes" --become -i inventory.ini
+
+ansible slaves -m lineinfile -a "path=/etc/sudoers line='jenkins ALL=(ALL) NOPASSWD:ALL' state=present validate='visudo -cf %s'" --become -i inventory.ini
+
+ansible slaves -a "id jenkins"  -i inventory.ini
+
+ansible slaves -a "sudo -l -U jenkins" -i inventory.ini
+
+ansible slaves -a "su - jenkins -c 'whoami'" --become -i inventory.ini
+
+ansible all -m apt -a "name=openjdk-21-jdk state=present update_cache=yes" --become -i inventory.ini
+
+ansible all -a "java -version" -i inventory.ini
+
+ansible jenkins -m shell -a "curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2026.key | tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null" --become -i inventory.ini
+
+ansible jenkins -m shell -a "echo 'deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian binary/' | tee /etc/apt/sources.list.d/jenkins.list > /dev/null" --become -i inventory.ini
+
+ansible jenkins -m apt -a "update_cache=yes" --become -i inventory.ini
+
+ansible jenkins -m apt -a "name=jenkins state=present" --become -i inventory.ini
+
+ansible jenkins -m systemd -a "name=jenkins state=started enabled=yes" --become
+
+ansible jenkins -a "systemctl status jenkins"
+
+ansible slaves -m file -a "path=/home/jenkins/.ssh state=directory owner=jenkins group=jenkins mode=0700" --become -i inventory.ini
+
+ansible slaves -m copy -a "src=/root/.ssh/id_rsa.pub dest=/home/jenkins/.ssh/authorized_keys owner=jenkins group=jenkins mode=0600" --become
+
+
+
+DOCKER CONFIGURATION AND INSTALLING EKS AND KUBECTL ON CONTAINER MACHINE
+==========================================================================
+
+ansible docker -m apt -a "update_cache=yes" --become -i inventory.ini
+
+ansible docker -m apt -a "name=curl,ca-certificates state=present update_cache=yes" --become -i inventory.ini
+
+ansible docker -m shell -a "curl -fsSL https://get.docker.com | sh" --become -i inventory.ini
+
+ansible docker -m systemd -a "name=docker state=started enabled=yes" --become -i inventory.ini
+
+ansible docker -m user -a "name=jenkins groups=docker append=yes" --become -i inventory.ini
+
+ansible docker -m systemd -a "name=docker state=restarted" --become -i inventory.ini
+
+ansible docker -a "su - jenkins -c 'docker ps'" --become -i inventory.ini
+
+ansible docker -m apt -a "name=unzip,ca-certificates,curl state=present update_cache=yes" --become -i inventory.ini
+
+ansible docker -m get_url -a "url=https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip dest=/tmp/awscliv2.zip" --become -i inventory.ini
+
+ansible docker -m unarchive -a "src=/tmp/awscliv2.zip dest=/tmp remote_src=yes" --become -i inventory.ini
+
+ansible docker -m shell -a "/tmp/aws/install --update" --become -i inventory.ini
+
+ansible docker -a "aws --version" -i inventory.ini
+
+ansible docker -m shell -a "curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" --become -i inventory.ini
+
+ansible docker -m shell -a "chmod +x kubectl" --become -i inventory.ini
+
+ansible docker -m shell -a "mv kubectl /usr/bin/kubectl" --become -i inventory.ini
+
+ansible docker -a "kubectl version --client" -i inventory.ini
+
+ansible docker -m shell -a "curl -sL https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz -o /tmp/eksctl.tar.gz" --become -i inventory.ini
+
+ansible docker -m shell -a "tar -xzf /tmp/eksctl.tar.gz -C /tmp" --become -i inventory.ini
+
+ansible docker -m shell -a "mv /tmp/eksctl /usr/bin/eksctl" --become -i inventory.ini
+
+ansible docker -a "eksctl version" -i inventory.ini
+
+ansible docker -a "kubectl version --client && eksctl version" -i inventory.ini
+
+ansible all -m apt -a "name=nfs-common state=present update_cache=yes" --become -i inventory.ini
+
+
+
+restart docker vm
+
+
+INSTALLING JAVA 8 AND MAVEN ON BUILD MACHINE TO CREATE WAR FILE
+=================================================================
+
+ansible build -m apt -a "name=openjdk-8-jdk state=present update_cache=yes" --become -i inventory.ini
+
+ansible build -a "ls /usr/lib/jvm" -i inventory.ini
+
+ansible build -m get_url -a "url=https://archive.apache.org/dist/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz dest=/tmp/apache-maven-3.9.6-bin.tar.gz" --become -i inventory.ini
+
+ansible build -m unarchive -a "src=/tmp/apache-maven-3.9.6-bin.tar.gz dest=/opt remote_src=yes creates=/opt/apache-maven-3.9.6" --become -i inventory.ini
+
+ansible build -m file -a "src=/opt/apache-maven-3.9.6 dest=/opt/maven state=link" --become -i inventory.ini
+
+ansible build -m file -a "src=/opt/maven/bin/mvn dest=/usr/bin/mvn state=link" --become -i inventory.ini
+
+ansible build -a "mvn -version" -i inventory.ini
+
+ansible build -m copy -a "dest=/etc/profile.d/maven-java8.sh content='export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64\nexport PATH=\$JAVA_HOME/bin:/opt/maven/bin:\$PATH' mode=0755" --become -i inventory.ini
+
+ansible build -a "ls -l /etc/profile.d/maven-java8.sh" -i inventory.ini
+
+ansible build -m shell -a "bash -lc 'source /etc/profile.d/maven-java8.sh && mvn -version'" -i inventory.ini
+
+-- optional : ansible build -m shell -a "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 PATH=/usr/lib/jvm/java-8-openjdk-amd64/bin:/opt/maven/bin:\$PATH mvn -version"
+
+
+REPOSITORY : https://github.com/sairam-swamy/maventomcatsnakes
+
+WORKING SUCCESSFULLY
+
+PLEASE DELETE RESOURCES AFTER YOU ARE DONE WITH PROJECT
+

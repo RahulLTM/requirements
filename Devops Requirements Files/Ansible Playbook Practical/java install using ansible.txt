@@ -1,0 +1,27 @@
+---
+- name: Install and Verify Java on Slave
+  hosts: slaves
+  become: yes
+
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install OpenJDK 11
+      apt:
+        name: openjdk-11-jdk
+        state: present
+
+    - name: Check Java version
+      command: java -version
+      register: java_output
+
+    - name: Display Java version
+      debug:
+        var: java_output.stderr
+
+   run the playbook: ansible-playbook -i inventory.ini java_setup.yml
+
+   check if java installed on slave machine: ansible slaves -i inventory.ini -m shell -a "java -version"

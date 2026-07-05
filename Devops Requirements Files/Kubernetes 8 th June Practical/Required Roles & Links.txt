@@ -1,0 +1,89 @@
+Role 1: eks-ec2-cluster
+        created coz the eks should be able to create ec2 instances.
+
+Role 2: node-access-awsresources
+        created coz the node should be able to access other AWS resources also.
+
+Role 3: kubernetes-ec2-instance-adminfullaccess
+        given so that the instance in which the Kubernetes is hosted gets full access rights to anything.
+
+========================================================================================================================================
+
+1) Install Kubernetes: 
+   - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.35.3/2026-04-08/bin/linux/amd64/kubectl   ----> install Kubernetes 1.35
+   - chmod +x ./kubectl                                                                                ----> give permission to kubectl file
+   - mv kubectl /usr/local/bin                                                                         
+
+4) Installing Eksctl
+   curl -sL https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz | tar xz
+   mv eksctl /usr/local/bin
+
+5) Check if eksctl and kubectl is correctly installed or not
+   kubectl
+   eksctl get cluster 
+   eksctl get cluster --region ap-south-1
+
+6) Attach Policy to the kubernetes-ec2-instance-adminfullaccess role - this role allows Kubernetes ec2 instance to access any aws service.
+   go to cluster-> access-> create identity -> select role -> add 
+   AmazonEksAdminPolicy
+   AmazonEksAutoNodePolicy
+   AmazonEKSClusterAdminPolicy
+
+7) aws eks update-kubeconfig --region ap-south-1 --name rahul-eks-cluster  ----> run this command
+========================================================================================================================================
+
+
+                                                          $ Creating Pods $
+
+1) kubectl run mypod --image nginx:latest    ----> creates new single pod
+
+2) kubectl get pods                          ----> lists all the available pods
+
+3) kubectl exec -it mypod --bash             ----> login to the pod
+
+4) kubectl delete pod mypod                  ----> deletes the pod
+======================================================================================================================================== 
+ 
+
+                                                           $ Creating Deployment $
+
+1) kubectl create deployment mydeployment --image nginx:latest --replicas 10    ----> creates multiple pods using replicas set
+
+2) kubectl get deployment                                                       ----> give u the deployment details
+
+3) kubectl delete pod pod_name                                                  ----> deletes a specific pod using pod name
+
+4) kubectl get rs                                                               ----> gives entire details of replica set
+
+5) kubectl scale deployment mydeployment --replicas 5                           ----> modifies the no of pods inside the deployment
+========================================================================================================================================
+
+                                                           $ Creating Service $ 
+
+NodePort Service
+
+1) kubectl run mypod --image nginx:latest                                       ----> creates single pod
+
+2) kubectl expose pod mypod --port 80 --type NodePort                           ----> exposed the pod using NodePort on port 80
+
+3) kubectl get service                                                          ----> lists the current running service.
+
+4) Publically expose the Pod:-
+   - edit sg that was created by the EKS n not us 
+   - edit inbound rules add all traffic + myip or all traffic
+
+   - copy ip of instance created by EKS + port no from kubectl get service. 
+   - paste to browser ip + port no
+
+5) kubectl exec -it mypod -- bash                                               ----> login to the pod
+==========================================================================================================================================
+
+
+
+
+
+
+
+
+
+   

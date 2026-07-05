@@ -1,0 +1,31 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - apt update
+      - apt install -y openjdk-8-jdk
+  
+  pre_build:
+    commands:
+      - ls -al
+      - pwd
+      - java -version
+  
+  build:
+    commands:
+      - chmod +x build.sh
+      - rm -rf ROOT.war
+      - ./build.sh
+      - ls -al
+  
+  post_build:
+    commands:
+      - ls -al
+  
+artifacts:
+  files:
+   - ROOT.war
+   - appspec.yml
+   - deploy.sh
+      

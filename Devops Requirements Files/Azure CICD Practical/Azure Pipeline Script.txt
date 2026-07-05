@@ -1,0 +1,27 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+ 
+pool:
+  rahul-agent-pool
+ 
+steps:
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
+ 
+- script: |
+    sudo apt update
+    sudo apt install -y openjdk-8-jdk
+    sudo apt install -y openjdk-11-jdk
+    sudo apt install -y tomcat9 tomcat9-admin
+    sudo chmod 777 build.sh
+    sudo rm -rf ROOT.war
+    ./build.sh
+    sudo rm -rf /var/lib/tomcat9/webapps/*
+    sudo systemctl restart tomcat9
+    sudo cp ROOT.war /var/lib/tomcat9/webapps
+  displayName: 'Deploying tomcat application'

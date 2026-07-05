@@ -1,0 +1,25 @@
+---
+- name: Install Nginx on Slave Machines
+  hosts: slaves
+  become: yes
+
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Start and enable Nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+run the playbook:             ansible-playbook -i inventory.ini nginxplaybook.yml
+
+check nginx version on slave: ansible slaves -i inventory.ini -m shell -a "nginx -v"

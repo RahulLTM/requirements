@@ -1,0 +1,49 @@
+name: Build and Deploy To Tomcat 9
+
+on:
+  push:
+    branches: [ master ] 
+  workflow_dispatch:                                                      #how the workflow should get executed
+
+jobs:
+  build-and-deploy:
+    runs-on: [self-hosted, dev]                                           #this is the runner and its label
+
+    env: 
+      WAR_NAME: "ROOT.war"
+      TOMCAT_WEBAPPS: "/var/lib/tomcat9/webapps"                          #tomcat webapps directory
+
+    steps:
+      - name: Checkout source code     
+        uses: actions/checkout@v4                                       #checkout the source code using github actions.
+
+      - name: Make build.sh executable
+        run: sudo chmod +x build.sh                                     #makes the build file executable
+
+      - name: Remove the pre-exisiting war file
+        run: sudo rm -rf ROOT.war
+ 
+      - name: Install Java 8                                            #done so we can build the war file.
+        run: sudo apt update && sudo apt -y install openjdk-8-jdk 
+
+      - name: Build the WAR using build.sh
+        run: ./build.sh
+
+      - name: Install Java 11                                           #done so we can work with TOMCAT 
+        run: sudo apt update && sudo apt -y install openjdk-11-jdk 
+
+      - name: Install Tomcat          
+        run: sudo apt -y install tomcat9 tomcat9-admin
+
+      - name: Restart TOMCAT
+        run: sudo systemctl restart tomcat9
+
+      - name: Deploy ROOT.war to TOMCAT
+        run: | 
+            sudo rm -rf "$TOMCAT_WEBAPPS"/*                               
+            sudo cp "$WAR_NAME" "$TOMCAT_WEBAPPS"                         
+
+      - name: Restart TOMCAT
+        run: sudo systemctl restart tomcat9
+
+ 
